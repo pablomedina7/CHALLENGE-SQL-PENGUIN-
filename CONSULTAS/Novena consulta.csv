@@ -1,0 +1,6 @@
+﻿Text;CreationDate
+IMO, The current accepted answer by meriton is useless. (Apologies to meriton).;2010-12-31 23:57:35.383
+@Petre - Which file are you referring to. The Html file that was loaded into the browser?;2010-12-31 23:53:19.020
+"I don't like the ""ensures""... his method is broken cryptography, but I know what you mean, the method he *wants* is one that ensures resistance to MITM, so +1 from me also.";2010-12-31 23:18:05.287
+"I liked your answer but: I noticed that the menu does not slideUp if you leave the ""Why Veoloo"" a tag up left or right. It will only close if you actually go down over one of the menu items.";2010-12-31 22:24:40.580
++1 for stacks. Couldn't agree more. @dan04 such a function is trivial to write, but won't help. Not if you are interested in parsing the expression.;2010-12-31 21:45:16.853
