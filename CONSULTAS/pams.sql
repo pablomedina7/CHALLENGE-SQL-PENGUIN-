@@ -3,10 +3,10 @@ SELECT TOP (200) DisplayName, Location, Reputation
 from Users
 Order BY Reputation DESC; 
 
---Segundo Ejercicio 
+--Segundo Ejercicio (titulo de publicaciones)
 SELECT TOP (200) Posts.Title, Users.DisplayName
-FROM Posts
-INNER JOIN Users ON Posts.OwnerUserId = Users.Id;
+FROM Posts  --se utilizan datos de la tabla posts 
+INNER JOIN Users ON Posts.OwnerUserId = Users.Id;  --se hace la union interna
 
 -- Tercer Ejercicio (calcular el promedio)
 SELECT TOP (200) Users.DisplayName, AVG(Posts.Score) AS AverageScore
@@ -16,18 +16,24 @@ WHERE Posts.OwnerUserId IS NOT NULL
 GROUP BY Users.DisplayName
 ORDER BY AverageScore DESC;
 
--- CUARTO EJERCICIO
-SELECT u.DisplayName
-FROM dbo.Users u
-WHERE (SELECT COUNT(*) FROM dbo.Comments c WHERE c.UserId = u.Id) > 100;
+--CUARTO EJERCICIO  (encontrar usuarios con mas de 100 comments )
+SELECT TOP (200) Users.DisplayName
+FROM Users
+WHERE Users.Id IN (         --se filtran de acuerdo a los requerimientos id-consulta
+    SELECT Comments.UserId
+    FROM Comments
+    GROUP BY Comments.UserId
+    HAVING COUNT(Comments.Id) > 100
+)
+ORDER BY Users.DisplayName, Users.Id; 
 
 
--- Quinto Ejercicio
-UPDATE Users
+-- Quinto Ejercicio ()
+UPDATE Users            --se actualiza 
 SET Location = 'desconocido'
 WHERE Location IS NULL OR TRIM(Location) = ''
 
-PRINT 'La actualizacion se realizo correctamente. Se actualizaron' + CAST(@@ROWCOUNT AS VARCHAR(10)) + 'filas.'
+PRINT 'La actualizacion se realizo correctamente. Se actualizaron' + CAST(@@ROWCOUNT AS VARCHAR(10)) + 'filas.' --convierte el numero de filas a cadena de txt
 
 -- Para visualizar
 SELECT TOP (200) Displayname, Location 
@@ -35,47 +41,37 @@ FROM Users
 WHERE Location = 'desconocido'
 ORDER BY DisplayName
 
--- Ejercicio 6
+-- Ejercicio 6 (elimina comentarios de usuarios con reputacion menos de 100 )
 DELETE Comments
 FROM Comments
-JOIN Users On Comments.UserId = Users.Id
+JOIN Users On Comments.UserId = Users.Id    --asocia cada comentaerio con su usuario 
 WHERE Users.Reputation < 100;
 
-DECLARE @DeletedCount INT;
-SET @DeletedCount = @@ROWCOUNT;
-PRINT CAST(@DeletedCount AS VARCHAR) + ' comentarios fueron eliminados.';
+DECLARE @DeletedCount INT;   
+SET @DeletedCount = @@ROWCOUNT;     --devuelve el numero de filas afectadas 
+PRINT CAST(@DeletedCount AS VARCHAR) + ' comentarios fueron eliminados.'; 
 
 
---septimo ejercicio 
-SELECT TOP (200) u.DisplayName, 
-    ISNULL(p.TotalPosts, 0) AS TotalPosts,
-    ISNULL(c.TotalComments, 0) AS TotalComments,
-    ISNULL(b.TotalBadges, 0) AS TotalBadges
-FROM dbo.Users u
-LEFT JOIN (
-    SELECT OwnerUserId, COUNT(*) AS TotalPosts
-    FROM dbo.Posts
-    GROUP BY OwnerUserId
-) p ON u.Id = p.OwnerUserId
-LEFT JOIN (
-    SELECT UserId, COUNT(*) AS TotalComments
-    FROM dbo.Comments
-    GROUP BY UserId
-) c ON u.Id = c.UserId
-LEFT JOIN (
-    SELECT UserId, COUNT(*) AS TotalBadges
-    FROM dbo.Badges
-    GROUP BY UserId
-) b ON u.Id = b.UserId
-ORDER BY TotalBadges Desc ; 
+-- Septimo ejercicio 
+-- Seleccionar el DisplayName del usuario y contar el número de posts, comentarios y medallas
+SELECT TOP 200
+    u.DisplayName,
+    (SELECT COUNT(*) FROM Posts WHERE OwnerUserId = u.Id) AS TotalPosts, --cuenta el numero de posts
+    (SELECT COUNT(*) FROM Comments WHERE UserId = u.Id) AS TotalComments, -- total de commentarios 
+    (SELECT COUNT(*) FROM Badges WHERE UserId = u.Id) AS TotalBadges -- total medals 
+FROM 
+    Users u     --se utiliza el alias
+ORDER BY 
+    TotalPosts DESC, u.DisplayName;
 
---Octavo ejercicio 
+
+--Octavo ejercicio (titulos y puntuaciones)
 SELECT Title, Score
 FROM dbo.Posts
 ORDER BY Score DESC
 OFFSET 0 ROWS FETCH NEXT 10 ROWS ONLY;
 
---noveno ejercicio 
+--noveno ejercicio  (textos y date de los comments)
 SELECT Text, CreationDate
 FROM dbo.Comments
 ORDER BY CreationDate DESC
